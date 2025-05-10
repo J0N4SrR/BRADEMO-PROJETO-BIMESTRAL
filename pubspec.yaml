@@ -62,3 +62,34 @@ flutter:
     - assets/images/lovely_deserts.png
     - assets/images/the_hill_sides.png
 
+fonts:
+    - family: Alegreya
+      fonts:
+        - asset: assets/fonts/Alegreya-Regular.ttf
+        - asset: assets/fonts/Alegreya-Italic.ttf
+          style: italic
+        - asset: assets/fonts/Alegreya-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Alegreya-MediumItalic.ttf
+          weight: 500
+          style: italic
+        - asset: assets/fonts/Alegreya-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Alegreya-SemiBoldItalic.ttf
+          weight: 600
+          style: italic
+        - asset: assets/fonts/Alegreya-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Alegreya-BoldItalic.ttf
+          weight: 700
+          style: italic
+        - asset: assets/fonts/Alegreya-ExtraBold.ttf
+          weight: 800
+        - asset: assets/fonts/Alegreya-ExtraBoldItalic.ttf
+          weight: 800
+          style: italic
+        - asset: assets/fonts/Alegreya-Black.ttf
+          weight: 900
+        - asset: assets/fonts/Alegreya-BlackItalic.ttf
+          weight: 900
+          style: italic

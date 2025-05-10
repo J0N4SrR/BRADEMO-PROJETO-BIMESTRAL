@@ -5,6 +5,7 @@ import 'app_text_styles.dart';
 
 class AppTheme {
   static final lightTheme = ThemeData(
+    fontFamily: 'Alegreya',
     primaryColor: AppColors.primary,
     scaffoldBackgroundColor: AppColors.background,
     appBarTheme: const AppBarTheme(
@@ -28,14 +29,12 @@ class AppTheme {
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
       ),
     ),
-   
     textTheme: TextTheme(
-    displayLarge:  AppTextStyles.headline1,
-    displayMedium: AppTextStyles.headline2,
-    bodyLarge:     AppTextStyles.bodyText1,
-     labelLarge:    AppTextStyles.button,
+      displayLarge:  AppTextStyles.headline1,
+      displayMedium: AppTextStyles.headline2,
+      bodyLarge:     AppTextStyles.bodyText1,
+      labelLarge:    AppTextStyles.button,
     ),
-
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: Colors.white,
