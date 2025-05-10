@@ -1,4 +1,4 @@
-##Projeto Bimestral - 01
+## Projeto Bimestral - 01
 
 Aplicativo desenvolvido em **Flutter** como parte da disciplina de **📱 Desenvolvimento para Dispositivos Móveis** no **IFSP - Campus Bragança Paulista**.
 
