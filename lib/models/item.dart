@@ -2,7 +2,7 @@ class MeuItem {
   final String id;
   final String title;
   final String description;
-  final String imageUrl;  // opcional, para ilustrar o card
+  final String imageUrl;  
 
   MeuItem({
     required this.id,

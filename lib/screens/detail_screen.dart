@@ -6,7 +6,6 @@ class DetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Captura os argumentos passados pela navegação
     final MeuItem item = ModalRoute.of(context)!.settings.arguments as MeuItem;
 
     return Scaffold(

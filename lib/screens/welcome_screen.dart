@@ -58,7 +58,6 @@ class WelcomeScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
 
-                    // Texto institucional resumido
                     Text(
                       'Projeto realizado pelos alunos Jonas Ribeiro da Rosa e Vinícius Pereira Costa,\ndo Curso de Análise e Desenvolvimento de Sistemas (IFSP – Campus Bragança Paulista),\ncomo requisito parcial da disciplina Desenvolvimento para Dispositivo Móvel,\nsob orientação do Prof. Luiz Gustavo Diniz de Oliveira Veras.',
                       style: AppTextStyles.bodyText1.copyWith(
@@ -70,7 +69,6 @@ class WelcomeScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 32),
 
-                    // Botão principal
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
