@@ -22,6 +22,7 @@ class AppTheme {
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.accent,
+        foregroundColor: const Color.fromARGB(255, 255, 255, 255),
         textStyle: AppTextStyles.button,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
@@ -45,8 +46,9 @@ class AppTheme {
       ),
     ),
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
-      selectedItemColor: AppColors.primary,
-      unselectedItemColor: AppColors.textDark.withOpacity(0.6),
+      selectedItemColor: AppColors.primary,      
+      unselectedItemColor: AppColors.textDark.withAlpha((0.6 * 255).toInt()),
+
     ),
   );
 }

@@ -56,7 +56,7 @@ flutter:
 
   assets:
     - assets/images/background_onboarding.png
-    - assets/images/logo.svg
+    - assets/images/lotus.png
     - assets/images/painting_forest.png
     - assets/images/mountaineers.png
     - assets/images/lovely_deserts.png

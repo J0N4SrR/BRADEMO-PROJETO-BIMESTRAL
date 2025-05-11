@@ -9,11 +9,12 @@ class WelcomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final nameController = TextEditingController();
+
     return Scaffold(
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // Fundo com imagem + gradiente
           Image.asset(
             'assets/images/background_onboarding.png',
             fit: BoxFit.cover,
@@ -22,8 +23,8 @@ class WelcomeScreen extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppColors.primary.withOpacity(0.8),
-                  AppColors.primary.withOpacity(0.3),
+                  AppColors.primary.withAlpha((0.8 * 255).toInt()),
+                  AppColors.primary.withAlpha((0.3 * 255).toInt()),
                   Colors.transparent,
                 ],
                 begin: Alignment.topCenter,
@@ -31,8 +32,6 @@ class WelcomeScreen extends StatelessWidget {
               ),
             ),
           ),
-
-          // Conteúdo central
           SafeArea(
             child: Center(
               child: Padding(
@@ -40,14 +39,11 @@ class WelcomeScreen extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Logo
                     SvgPicture.asset(
                       'assets/images/logo.svg',
                       height: 100,
                     ),
                     const SizedBox(height: 24),
-
-                    // Título
                     Text(
                       'Bem-vindo ao Nosso App',
                       style: AppTextStyles.headline2.copyWith(
@@ -57,7 +53,6 @@ class WelcomeScreen extends StatelessWidget {
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 16),
-
                     Text(
                       'Projeto realizado pelos alunos Jonas Ribeiro da Rosa e Vinícius Pereira Costa,\ndo Curso de Análise e Desenvolvimento de Sistemas (IFSP – Campus Bragança Paulista),\ncomo requisito parcial da disciplina Desenvolvimento para Dispositivo Móvel,\nsob orientação do Prof. Luiz Gustavo Diniz de Oliveira Veras.',
                       style: AppTextStyles.bodyText1.copyWith(
@@ -67,13 +62,27 @@ class WelcomeScreen extends StatelessWidget {
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 32),
-
+                    const SizedBox(height: 24),
+                    TextFormField(
+                      controller: nameController,
+                      decoration: const InputDecoration(
+                        labelText: 'Digite seu nome',
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
-                          Navigator.pushNamed(context, Routes.shell);
+                          final name = nameController.text.trim();
+                          Navigator.pushNamed(
+                            context,
+                            Routes.shell,
+                            arguments: name,
+                          );
                         },
                         child: const Text('Entrar'),
                       ),
