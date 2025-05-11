@@ -62,6 +62,7 @@ flutter:
     - assets/images/lovely_deserts.png
     - assets/images/the_hill_sides.png
 
+
 fonts:
     - family: Alegreya
       fonts:
