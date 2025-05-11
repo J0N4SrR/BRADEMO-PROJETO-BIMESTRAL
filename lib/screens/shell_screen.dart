@@ -60,6 +60,15 @@ class ShellScreen extends StatelessWidget {
           Navigator.pushNamed(context, Routes.triggerPlan);
         },
       ),
+      ListTile(
+        leading: const Icon(Icons.grid_view),
+        title: const Text('Grade'),
+        onTap: () {
+          Navigator.pop(context);
+          Navigator.pushNamed(context, Routes.grid);
+        },
+      ),
+
        ListTile(
         leading: const Icon(Icons.list),
         title: const Text('Lista de Itens'),
