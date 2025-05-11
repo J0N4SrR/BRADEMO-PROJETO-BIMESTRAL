@@ -61,6 +61,7 @@ flutter:
     - assets/images/mountaineers.png
     - assets/images/lovely_deserts.png
     - assets/images/the_hill_sides.png
+    - assets/images/user.png
 
 
 fonts:

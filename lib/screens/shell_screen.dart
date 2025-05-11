@@ -12,7 +12,68 @@ class ShellScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Tools')),
-      drawer: const Drawer(child: Center(child: Text('Drawer'))),
+      drawer: Drawer(
+  child: ListView(
+    padding: EdgeInsets.zero,
+    children: [
+      DrawerHeader(
+        decoration: const BoxDecoration(
+          color: Colors.teal,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: const [
+            CircleAvatar(
+              radius: 30,
+              backgroundImage: AssetImage('assets/images/user.png'),
+            ),
+            SizedBox(height: 12),
+            Text('Olá, Bem vindo!', style: TextStyle(color: Colors.white, fontSize: 18)),
+          ],
+        ),
+      ),
+      ListTile(
+        leading: const Icon(Icons.book),
+        title: const Text('Mood Journal'),
+        onTap: () {
+          Navigator.pushNamed(context, Routes.moodJournal);
+        },
+      ),
+      ListTile(
+        leading: const Icon(Icons.rocket_launch),
+        title: const Text('Mood Booster'),
+        onTap: () {
+          Navigator.pushNamed(context, Routes.moodBooster);
+        },
+      ),
+      ListTile(
+        leading: const Icon(Icons.sentiment_satisfied_alt),
+        title: const Text('Positive Notes'),
+        onTap: () {
+          Navigator.pushNamed(context, Routes.positiveNotes);
+        },
+      ),
+      ListTile(
+        leading: const Icon(Icons.check_box),
+        title: const Text('Trigger Plan'),
+        onTap: () {
+          Navigator.pushNamed(context, Routes.triggerPlan);
+        },
+      ),
+       ListTile(
+        leading: const Icon(Icons.list),
+        title: const Text('Lista de Itens'),
+        onTap: () => Navigator.pushNamed(context, Routes.list),
+      ),
+      ListTile(
+        leading: const Icon(Icons.edit),
+        title: const Text('Formulário'),
+        onTap: () => Navigator.pushNamed(context, Routes.form),
+      ),
+    ],
+  ),
+),
+
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: 0,
         onTap: (index) {
