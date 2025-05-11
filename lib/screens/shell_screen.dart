@@ -88,15 +88,15 @@ class ShellScreen extends StatelessWidget {
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: 0,
-        onTap: (index) {
-          if (index == 0) Navigator.pushNamed(context, Routes.welcome);
-          if (index == 1) Navigator.pushNamed(context, Routes.list);
-          if (index == 2) Navigator.pushNamed(context, Routes.form);
+        onTap: (index) {          
+          if (index == 0) Navigator.pushNamed(context, Routes.list);
+          if (index == 1) Navigator.pushNamed(context, Routes.form);
+          if (index == 2) Navigator.pushNamed(context, Routes.welcome);
         },
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+        items: const [          
           BottomNavigationBarItem(icon: Icon(Icons.list), label: 'List'),
           BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Form'),
+          BottomNavigationBarItem(icon: Icon(Icons.arrow_back	), label: 'Sair'),
         ],
       ),
       floatingActionButton: FloatingActionButton(
