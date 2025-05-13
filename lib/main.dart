@@ -18,11 +18,6 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       initialRoute: Routes.welcome,
       routes: Routes.getAll(),
-
-
-
-
-
     );
   }
 }

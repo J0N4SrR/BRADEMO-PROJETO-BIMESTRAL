@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class FormScreen extends StatefulWidget {
-  const FormScreen({Key? key}) : super(key: key);
+  const FormScreen({super.key});
 
   @override
   State<FormScreen> createState() => _FormScreenState();
