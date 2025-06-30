@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "808110263198",
+    "firebase_url": "https://zenflow-9a8e0-default-rtdb.firebaseio.com",
+    "project_id": "zenflow-9a8e0",
+    "storage_bucket": "zenflow-9a8e0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:808110263198:android:827119f6b418be3b60a48f",
+        "android_client_info": {
+          "package_name": "com.example.projeto_bimestral"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC10wo2wu0VsvARxwEtO9--7B1C5NZiJhc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:projeto_bimestral/services/database_service.dart';
 import 'package:projeto_bimestral/theme/app_colors.dart';
 import 'package:projeto_bimestral/theme/app_text_styles.dart';
 import 'package:projeto_bimestral/routes.dart';
@@ -78,6 +79,25 @@ class WelcomeScreen extends StatelessWidget {
                       child: ElevatedButton(
                         onPressed: () {
                           final name = nameController.text.trim();
+
+                          // Validação básica para evitar nomes inválidos no Firebase
+                          if (name.isEmpty || RegExp(r'[.#$\[\]]').hasMatch(name)) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Digite um nome válido (sem . # \$ [ ])'),
+                              ),
+                            );
+                            return;
+                          }
+
+                          final data = {
+                            'nome': name,
+                          };
+
+                          DatabaseService().create(path: 'data1/$name', data: data);
+
+
+                          // Continua para próxima tela com o nome como argumento
                           Navigator.pushNamed(
                             context,
                             Routes.shell,
