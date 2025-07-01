@@ -1,17 +1,105 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:projeto_bimestral/services/database_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:projeto_bimestral/theme/app_colors.dart';
 import 'package:projeto_bimestral/theme/app_text_styles.dart';
 import 'package:projeto_bimestral/routes.dart';
 
-class WelcomeScreen extends StatelessWidget {
+class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final nameController = TextEditingController();
+  State<WelcomeScreen> createState() => _WelcomeScreenState();
+}
 
+class _WelcomeScreenState extends State<WelcomeScreen> {
+  final emailController = TextEditingController();
+  final senhaController = TextEditingController();
+
+  void _login() async {
+    final email = emailController.text.trim();
+    final senha = senhaController.text.trim();
+
+    try {
+      await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: email, password: senha);
+
+      Navigator.pushReplacementNamed(context, Routes.shell);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao fazer login: $e')),
+      );
+    }
+  }
+
+  void _mostrarPopupCadastro() {
+    final emailController = TextEditingController();
+    final senhaController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Criar Conta'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: emailController,
+                decoration: const InputDecoration(labelText: 'E-mail'),
+              ),
+              TextField(
+                controller: senhaController,
+                obscureText: true,
+                decoration: const InputDecoration(labelText: 'Senha'),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final email = emailController.text.trim();
+                final senha = senhaController.text.trim();
+
+                try {
+                  final userCredential = await FirebaseAuth.instance
+                      .createUserWithEmailAndPassword(
+                          email: email, password: senha);
+
+                  // ✅ Salva email e senha no Realtime Database
+                  await FirebaseDatabase.instance
+                      .ref('usuarios/${userCredential.user!.uid}')
+                      .set({
+                    'email': email,
+                    'senha': senha,
+                  });
+
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Conta criada com sucesso!')),
+                  );
+                } catch (e) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Erro ao criar conta: $e')),
+                  );
+                }
+              },
+              child: const Text('Criar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         fit: StackFit.expand,
@@ -53,21 +141,27 @@ class WelcomeScreen extends StatelessWidget {
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Projeto realizado pelos alunos Jonas Ribeiro da Rosa e Vinícius Pereira Costa,\ndo Curso de Análise e Desenvolvimento de Sistemas (IFSP – Campus Bragança Paulista),\ncomo requisito parcial da disciplina Desenvolvimento para Dispositivo Móvel,\nsob orientação do Prof. Luiz Gustavo Diniz de Oliveira Veras.',
-                      style: AppTextStyles.bodyText1.copyWith(
-                        color: AppColors.textLight.withOpacity(0.9),
-                        height: 1.4,
-                        fontSize: 14,
-                      ),
-                      textAlign: TextAlign.center,
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Entre com seu e-mail para continuar.',
+                      style: TextStyle(color: Colors.white70),
                     ),
-                    const SizedBox(height: 24),
-                    TextFormField(
-                      controller: nameController,
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: emailController,
                       decoration: const InputDecoration(
-                        labelText: 'Digite seu nome',
+                        labelText: 'E-mail',
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: senhaController,
+                      obscureText: true,
+                      decoration: const InputDecoration(
+                        labelText: 'Senha',
                         filled: true,
                         fillColor: Colors.white,
                         border: OutlineInputBorder(),
@@ -77,36 +171,21 @@ class WelcomeScreen extends StatelessWidget {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: () {
-                          final name = nameController.text.trim();
-
-                          // Validação básica para evitar nomes inválidos no Firebase
-                          if (name.isEmpty || RegExp(r'[.#$\[\]]').hasMatch(name)) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Digite um nome válido (sem . # \$ [ ])'),
-                              ),
-                            );
-                            return;
-                          }
-
-                          final data = {
-                            'nome': name,
-                          };
-
-                          DatabaseService().create(path: 'data1/$name', data: data);
-
-
-                          // Continua para próxima tela com o nome como argumento
-                          Navigator.pushNamed(
-                            context,
-                            Routes.shell,
-                            arguments: name,
-                          );
-                        },
+                        onPressed: _login,
                         child: const Text('Entrar'),
                       ),
                     ),
+                    const SizedBox(height: 12),
+                    GestureDetector(
+                      onTap: _mostrarPopupCadastro,
+                      child: const Text(
+                        'Não tem conta? Criar',
+                        style: TextStyle(
+                          color: Colors.deepPurpleAccent,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    )
                   ],
                 ),
               ),

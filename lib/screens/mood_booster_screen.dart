@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:projeto_bimestral/services/database_service.dart';
 import 'package:projeto_bimestral/theme/app_colors.dart';
 
@@ -14,8 +15,10 @@ class MoodBoosterScreen extends StatefulWidget {
 
 class _MoodBoosterScreenState extends State<MoodBoosterScreen> {
   String? _selected;
+  XFile? _pickedImage;
   List<Map<String, dynamic>> _historico = [];
   final TextEditingController _mensagemController = TextEditingController();
+  
 
   @override
     void initState() {
@@ -44,26 +47,30 @@ class _MoodBoosterScreenState extends State<MoodBoosterScreen> {
   final moods = ['😄', '😊', '😐', '😢', '😡'];
 
   void _confirmMood() async {
-  final mensagem = _mensagemController.text.trim();
+    final mensagem = _mensagemController.text.trim();
+    if (_selected == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Selecione o humor.')));
+      return;
+    }
 
-  if (_selected != null) {
-    await DatabaseService().saveMoodEmoji(_selected!);
-    await DatabaseService().saveMoodToHistory(_selected!, mensagem);
+    String? imageUrl;
+    if (_pickedImage != null) {
+      final id = DateTime.now().millisecondsSinceEpoch.toString();
+      imageUrl = await DatabaseService().uploadMoodImage(id, _pickedImage!);
+    }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Humor salvo: $_selected')),
+    await DatabaseService().saveMoodToHistory(
+      emoji: _selected!,
+      mensagem: mensagem,
+      imageUrl: imageUrl,
     );
 
+    setState(() => _pickedImage = null);
     _mensagemController.clear();
     _carregarHistorico();
-  } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Por favor, selecione um humor.')),
-    );
-  }
-  }
 
-
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Humor salvo: $_selected')));
+  }
 
 
   @override
@@ -126,6 +133,7 @@ class _MoodBoosterScreenState extends State<MoodBoosterScreen> {
                       itemCount: _historico.length,
                       itemBuilder: (context, index) {
                         final item = _historico[index];
+                        final imageUrl = item['imageUrl'];
                         final emoji = item['emoji'] ?? '';
                         final timestamp = item['timestamp']?.toString().substring(0, 16) ?? '';
                         final id = item['id'];
@@ -135,12 +143,12 @@ class _MoodBoosterScreenState extends State<MoodBoosterScreen> {
                           margin: const EdgeInsets.symmetric(vertical: 4),
                           child: ListTile(
                             leading: Text(emoji, style: const TextStyle(fontSize: 24)),
-                            //title: Text(emoji, style: const TextStyle(fontSize: 24)),
                               subtitle: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(mensagem),
                                   Text(timestamp, style: const TextStyle(fontSize: 12, color: AppColors.textDark)),
+                                  if (imageUrl != null) SizedBox(height: 60, width: 60, child: Image.network(imageUrl)),
                                 ],
                               ),
                             trailing: Row(
@@ -166,7 +174,6 @@ class _MoodBoosterScreenState extends State<MoodBoosterScreen> {
                                         ],
                                       ),
                                     );
-
                                     if (confirm == true && id != null) {
                                       await DatabaseService().deleteMoodFromHistory(id);
                                       _carregarHistorico(); // Atualiza lista após excluir
@@ -203,6 +210,13 @@ class _MoodBoosterScreenState extends State<MoodBoosterScreen> {
                                       await DatabaseService().updateMoodMessage(id, novaMensagem);
                                       _carregarHistorico();
                                     }
+                                  },
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.camera_alt, color: AppColors.primary),
+                                  onPressed: () async {
+                                    final img = await ImagePicker().pickImage(source: ImageSource.camera);
+                                    if (img != null) setState(() => _pickedImage = img);
                                   },
                                 ),
                               ],

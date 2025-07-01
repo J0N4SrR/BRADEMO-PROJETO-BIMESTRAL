@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:projeto_bimestral/services/database_service.dart';
 import 'package:projeto_bimestral/theme/app_colors.dart';
+import 'package:geocoding/geocoding.dart';
+
 
 class MoodJournalScreen extends StatefulWidget {
   const MoodJournalScreen({super.key});
@@ -20,49 +23,67 @@ class _MoodJournalScreenState extends State<MoodJournalScreen> {
   }
 
   Future<void> _carregarMensagens() async {
-  final mensagens = await DatabaseService().read('data2');
-  print('Mensagens lidas: $mensagens'); // debug
-  setState(() {
+    final mensagens = await DatabaseService().read('mood_journal');
     _mensagens.clear();
-    _mensagens.addAll(mensagens.reversed); // mais recentes primeiro
-    });
+
+    for (final msg in mensagens.reversed) {
+      if (msg['latitude'] != null && msg['longitude'] != null) {
+        try {
+          final placemarks = await placemarkFromCoordinates(
+            msg['latitude'],
+            msg['longitude'],
+          );
+          if (placemarks.isNotEmpty) {
+            final place = placemarks.first;
+            msg['local'] =
+                '${place.street ?? ''}, ${place.subLocality ?? ''}, ${place.locality ?? ''}';
+          }
+        } catch (_) {
+          msg['local'] = 'Localização desconhecida';
+        }
+      }
+
+      _mensagens.add(msg);
+    }
+
+    setState(() {});
   }
 
+
   void _editarMensagem(Map<String, dynamic> mensagemOriginal) {
-  final TextEditingController editarController =
-      TextEditingController(text: mensagemOriginal['mensagem']);
+    final TextEditingController editarController =
+        TextEditingController(text: mensagemOriginal['mensagem']);
 
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: const Text('Editar mensagem'),
-            content: TextField(
-              controller: editarController,
-              maxLines: 4,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-              ),
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Editar mensagem'),
+          content: TextField(
+            controller: editarController,
+            maxLines: 4,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
             ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancelar'),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  final novoTexto = editarController.text.trim();
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final novoTexto = editarController.text.trim();
+                if (novoTexto.isEmpty) return;
 
-                  if (novoTexto.isEmpty) return;
+                await DatabaseService().update(
+                  path: 'mood_journal/${mensagemOriginal['id']}',
+                  data: {'mensagem': novoTexto},
+                );
 
-                  await DatabaseService().update(
-                    path: 'data2/${mensagemOriginal['id']}',
-                    data: {'mensagem': novoTexto},
-                  );
-
-                  Navigator.pop(context);
-                  _carregarMensagens();
-                },
+                Navigator.pop(context);
+                _carregarMensagens();
+              },
               child: const Text('Salvar'),
             ),
           ],
@@ -84,7 +105,7 @@ class _MoodJournalScreenState extends State<MoodJournalScreen> {
           ),
           ElevatedButton(
             onPressed: () async {
-              await DatabaseService().delete(path: 'data2/$id');
+              await DatabaseService().delete(path: 'mood_journal/$id');
               Navigator.pop(context);
               _carregarMensagens();
             },
@@ -95,47 +116,61 @@ class _MoodJournalScreenState extends State<MoodJournalScreen> {
     );
   }
 
-
   String _formatarData(String isoString) {
     final date = DateTime.tryParse(isoString);
     if (date == null) return 'Data inválida';
 
-    // Formato simples: 27/06/2025 às 22:12
     return '${date.day.toString().padLeft(2, '0')}/'
-          '${date.month.toString().padLeft(2, '0')}/'
-          '${date.year} às '
-          '${date.hour.toString().padLeft(2, '0')}:'
-          '${date.minute.toString().padLeft(2, '0')}';
+        '${date.month.toString().padLeft(2, '0')}/'
+        '${date.year} às '
+        '${date.hour.toString().padLeft(2, '0')}:'
+        '${date.minute.toString().padLeft(2, '0')}';
   }
 
+  void _saveNote() async {
+    final text = _controller.text.trim();
 
+    if (text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Digite algo antes de salvar.')),
+      );
+      return;
+    }
 
-  void _saveNote() {
-  final text = _controller.text.trim();
+    try {
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          throw Exception('Permissão negada.');
+        }
+      }
 
-  if (text.isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Digite algo antes de salvar.')),
-    );
-    return;
+      final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      final data = {
+        'mensagem': text,
+        'timestamp': DateTime.now().toIso8601String(),
+        'latitude': position.latitude,
+        'longitude': position.longitude,
+      };
+
+      await DatabaseService().create(path: 'mood_journal', data: data);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Mensagem salva com sucesso!')),
+      );
+
+      _controller.clear();
+      _carregarMensagens();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao obter localização: $e')),
+      );
+    }
   }
-
-  final data = {
-  'mensagem': text,
-  'timestamp': DateTime.now().toIso8601String(),
-};
-
-  DatabaseService()
-      .create(path: 'data2', data: data)
-      .then((_) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Mensagem salva com sucesso!')),
-        );
-        _controller.clear();
-        _carregarMensagens(); // atualiza a lista após salvar
-      });
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -170,15 +205,21 @@ class _MoodJournalScreenState extends State<MoodJournalScreen> {
                       itemCount: _mensagens.length,
                       itemBuilder: (context, index) {
                         final msg = _mensagens[index];
+                        final local = msg['local'] ?? 'Localização não disponível';
                         return Card(
                           margin: const EdgeInsets.symmetric(vertical: 4),
                           child: ListTile(
                             title: Text(msg['mensagem'] ?? ''),
-                              subtitle: msg['timestamp'] != null
-                                  ? Text(_formatarData(msg['timestamp']))
-                                  : null,
-                              trailing: Row(
-                              mainAxisSize: MainAxisSize.min, // evita ocupar espaço demais
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (msg['timestamp'] != null)
+                                  Text(_formatarData(msg['timestamp'])),
+                                Text(local, style: const TextStyle(fontSize: 12)),
+                              ],
+                            ),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
                                 IconButton(
                                   icon: const Icon(Icons.edit, color: AppColors.primary),
@@ -203,4 +244,3 @@ class _MoodJournalScreenState extends State<MoodJournalScreen> {
     );
   }
 }
-
